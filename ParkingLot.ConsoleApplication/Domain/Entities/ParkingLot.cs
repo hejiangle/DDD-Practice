@@ -31,7 +31,7 @@ namespace ParkLot.Domain.Entities
             return TicketFactory.CreateTicket(this, car, DEFAULT_PARKING_DURATION_IN_MINUTE);
         }
 
-        public Car GetCar(Ticket ticket)
+        public Car TakeCar(Ticket ticket)
         {
             //The following business logic can be refactored.
             var isCorrectParkingLot = Address.Equals(ticket.ParkLotAddress);
@@ -39,7 +39,11 @@ namespace ParkLot.Domain.Entities
             
             if (isCorrectParkingLot && isStillInDuration)
             {
-                return CarSpaces.Find(space => space.Code.Equals(ticket.SpaceCode)).ParkingCar;
+                var carSpace = CarSpaces.Find(space => space.Code.Equals(ticket.SpaceCode));
+                var car = carSpace.ParkingCar;
+                carSpace.ParkingCar = null;
+                
+                return car;
             }
             
             throw new Exception("Invalid ticket.");

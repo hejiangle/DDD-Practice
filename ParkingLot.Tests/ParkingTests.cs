@@ -111,7 +111,7 @@ namespace ParkingLot.Tests
 
             var car = parkingLots
                 .Find(parkingLot => parkingLot.Address.Equals(ticket.ParkLotAddress))
-                .GetCar(ticket);
+                .TakeCar(ticket);
             
             Assert.Equal("QM.AE86", car.PlateNumber);
         }
@@ -134,7 +134,7 @@ namespace ParkingLot.Tests
             
             var ticket = TicketFactory.CreateTicket(parkingLots[0], new Car("QM.AE86"), -15);
 
-            Assert.Throws<Exception>(() => parkingLots[0].GetCar(ticket));
+            Assert.Throws<Exception>(() => parkingLots[0].TakeCar(ticket));
         }
     }
 }
