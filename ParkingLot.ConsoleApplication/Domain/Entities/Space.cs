@@ -1,5 +1,6 @@
 namespace ParkLot.Domain.Entities
 {
+    //This class may be over-design...because no requirement mentioned.
     public class Space
     {
         public Space(string code)
