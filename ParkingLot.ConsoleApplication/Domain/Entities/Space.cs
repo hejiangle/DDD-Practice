@@ -1,4 +1,4 @@
-namespace ParkLot.Domain.ValueObjects
+namespace ParkLot.Domain.Entities
 {
     public class Space
     {

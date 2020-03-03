@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ParkLot;
+using ParkLot.Domain.Entities;
 using ParkLot.Domain.ValueObjects;
 
 namespace ParkingLot.Tests.TestHelpers
