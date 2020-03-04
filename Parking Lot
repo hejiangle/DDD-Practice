@@ -1,11 +1,11 @@
 @startuml
 
 class ParkingLot <<Entity>> {
-    string adress
+    string address
     bool isAvailable
 
-    Ticket receiveCar(Car car)
-    Car getCar(Ticket ticekt)
+    Ticket ReceiveCar(Car car)
+    Car GetCar(Ticket ticket)
     
 }
 
@@ -14,50 +14,35 @@ class Car <<ValueObject>> {
 }
 
 class Ticket <<ValueObject>> {
-    DateTime parkingStartTime
-    int duration
     string plateNumber
-    string parkingLotAdress
-    string spaceCode
+    string parkingLotAddress
+    
+    bool IsValidTicket(ParkingLot parkingLot)
 }
 
-class Space <<Entity>> {
-    string code
-    Car parkingCar
-    bool isAvailable
+class ParkingBoy <<Application Service>> {
+    string Search(ParkingLotSearcher searcher)
+    Ticket Parking(Car car, ParkingLot availableParkingLot)
 }
 
-class ParkingBoy <<ValueObject>> {
-    Ticket Parking(Car car, string parkingLotAdress = null)
-
-    - Ticket ParkingInAnyParkingLot(Car car)
-    - Ticket ParkingInSpecificParkingLot(Car car, string parkingLotAdress == null) 
-}
-
-interface IParkingLotRepostory <<Repository>> {
-   {abstract} List<ParkingLot> getParkingLots()
-   {abstract} void updateParkingLot(ParkingLot parkingLot)
+interface IParkingLotRepository <<Repository>> {
+   {abstract} List<ParkingLot> GetParkingLots()
+   {abstract} ParkingLot GetParkingLotByAddress(string address)
+   {abstract} void UpdateParkingLot(ParkingLot parkingLot)
    ... 
 }
 
-class ParkingBoyFactory <<Factory>> {
-    {static} ParkingBoy createParkingBoy(List<ParkingLot> parkingLots)
+class ParkingLotSearcher <<Domain Service>> {
+    ParkingLot Search(List<ParkingLot> parkingLots)
 }
 
-class TicketFactory <<Factory>> {
-    {static} Ticket createTicket(ParkingLot parkingLot, Car car, int duration)
-}
 
-ParkingBoyFactory .> IParkingLotRepostory : Actually, here is only data dependency.
+ParkingBoy ..> IParkingLotRepository
+ParkingBoy ..> ParkingLotSearcher
 
-IParkingLotRepostory "1" -- "*" ParkingLot : retrieve >
-ParkingBoyFactory "1" -- "*" ParkingBoy : create >
-ParkingBoy "*" . "*" ParkingLot : The relationship already be moved into factory and repository.
+IParkingLotRepository "1" -- "*" ParkingLot : retrieve >
 
-ParkingLot "1" o--> "*" Space
-ParkingLot "1" --> "1" TicketFactory
-TicketFactory -- Ticket : create >
-
-Space "1" --> "1" Car
+ParkingLot "1" o--> "*" Car
+ParkingLot -- Ticket : create >
 
 @enduml

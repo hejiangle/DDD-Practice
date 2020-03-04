@@ -6,8 +6,4 @@
     <RootNamespace>ParkLot</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="ApplicationService" />
-  </ItemGroup>
-
 </Project>

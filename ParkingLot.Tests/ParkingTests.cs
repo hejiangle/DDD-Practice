@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Moq;
 using ParkingLot.Tests.TestHelpers;
 using ParkLot;
-using ParkLot.Infrastructure.Factories;
+using ParkLot.ApplicationService;
+using ParkLot.Domain.ValueObjects;
 using ParkLot.Infrastructure.Repositories;
 using Xunit;
 
@@ -11,103 +13,97 @@ namespace ParkingLot.Tests
     public class ParkingTests
     {
         private readonly Mock<IParkingLotRepository> _mockParkingLotRepository;
+        private readonly Mock<ParkingLotSearcher> _mockParkingLotSearcher;
         
         public ParkingTests()
         {
             _mockParkingLotRepository = new Mock<IParkingLotRepository>();
+            _mockParkingLotSearcher = new Mock<ParkingLotSearcher>();
         }
 
         [Fact]
         public void ShouldParkingInTheFirstCarSapceInTheFirstParkingLot()
         {
+            var parkingLots = ParkingLotTestDataBuilder
+                .Create()
+                .SetCountOfParkingLots(2)
+                .SetCountOfEachParkingSpace(20)
+                .Build();
+            
             _mockParkingLotRepository
                 .Setup(repository => repository.GetAllParkingLots())
-                .Returns(ParkingLotTestDataBuilder
-                    .Create()
-                    .SetCountOfParkingLots(2)
-                    .SetCountOfEachParkingSpace(20)
-                    .Build());
+                .Returns(parkingLots);
+            _mockParkingLotRepository
+                .Setup(x => x.GetParkingLotByAddress(It.IsAny<string>()))
+                .Returns(parkingLots[0]);
             
-            var parkingLots = _mockParkingLotRepository.Object.GetAllParkingLots();
+            _mockParkingLotSearcher
+                .Setup(x => x.Search(It.IsAny<List<ParkLot.Domain.Entities.ParkingLot>>()))
+                .Returns(new ParkLot.Domain.Entities.ParkingLot("A road", 20));
             
-            var parkingBoy = ParkingBoyFactory.CreateParkingBoy(parkingLots);
+            var parkingBoy = new ParkingBoy(_mockParkingLotRepository.Object);
 
-            var ticket = parkingBoy.Parking(new Car("QM.AE86"));
+            var address = parkingBoy.SearchParkingLot(_mockParkingLotSearcher.Object);
+            var ticket = parkingBoy.Parking(new Car("QM.AE86"), address);
             
             Assert.Equal("QM.AE86", ticket.PlateNumber);
             Assert.Equal("A road", ticket.ParkLotAddress);
-            Assert.Equal("A 0", ticket.SpaceCode);
-            Assert.Equal(60, ticket.Duration);
-            Assert.Equal(DateTime.UtcNow.Date, ticket.ParkingStartTime.Date);
         }
 
         [Fact]
         public void ShouldParkingInTheFirstSpaceInTheAvailableParkingLotWhenTheFirstParkingLotIsUnavailable()
         {
+            var parkingLots = ParkingLotTestDataBuilder
+                .Create()
+                .SetCountOfParkingLots(2)
+                .SetCountOfEachParkingSpace(20)
+                .SetUnavailableParkingAddress("B street")
+                .Build();
+            
             _mockParkingLotRepository
                 .Setup(repository => repository.GetAllParkingLots())
-                .Returns(ParkingLotTestDataBuilder
-                    .Create()
-                    .SetCountOfParkingLots(2)
-                    .SetCountOfEachParkingSpace(20)
-                    .SetUnavailableParkingAddress("A road")
-                    .Build());
+                .Returns(parkingLots);
+            _mockParkingLotRepository
+                .Setup(x => x.GetParkingLotByAddress(It.IsAny<string>()))
+                .Returns(parkingLots[1]);
             
-            var parkingLots = _mockParkingLotRepository.Object.GetAllParkingLots();
+            _mockParkingLotSearcher
+                .Setup(x => x.Search(It.IsAny<List<ParkLot.Domain.Entities.ParkingLot>>()))
+                .Returns(new ParkLot.Domain.Entities.ParkingLot("A road", 20));
             
-            var parkingBoy = ParkingBoyFactory.CreateParkingBoy(parkingLots);
+            var parkingBoy = new ParkingBoy(_mockParkingLotRepository.Object);
 
-            var ticket = parkingBoy.Parking(new Car("QM.AE86"));
+            var address = parkingBoy.SearchParkingLot(_mockParkingLotSearcher.Object);
+            var ticket = parkingBoy.Parking(new Car("QM.AE86"), address);
             
             Assert.Equal("QM.AE86", ticket.PlateNumber);
             Assert.Equal("B street", ticket.ParkLotAddress);
-            Assert.Equal("A 0", ticket.SpaceCode);
-            Assert.Equal(60, ticket.Duration);
-            Assert.Equal(DateTime.UtcNow.Date, ticket.ParkingStartTime.Date);
-        }
-
-        [Fact]
-        public void ShouldParkingInTheNextSpaceInTheFirstAvailableParkingLotWhenTheFirstSpaceIsUnavailable()
-        {
-            _mockParkingLotRepository
-                .Setup(repository => repository.GetAllParkingLots())
-                .Returns(ParkingLotTestDataBuilder
-                    .Create()
-                    .SetCountOfParkingLots(2)
-                    .SetCountOfEachParkingSpace(20)
-                    .SetUnavailableSpaceCode("A 0")
-                    .Build());
-            
-            var parkingLots = _mockParkingLotRepository.Object.GetAllParkingLots();
-            
-            var parkingBoy = ParkingBoyFactory.CreateParkingBoy(parkingLots);
-
-            var ticket = parkingBoy.Parking(new Car("QM.AE86"));
-            
-            Assert.Equal("QM.AE86", ticket.PlateNumber);
-            Assert.Equal("A road", ticket.ParkLotAddress);
-            Assert.Equal("A 1", ticket.SpaceCode);
-            Assert.Equal(60, ticket.Duration);
-            Assert.Equal(DateTime.UtcNow.Date, ticket.ParkingStartTime.Date);
         }
 
         [Fact]
         public void ShouldGetParkingCarWhenTicketIsValid()
         {
+            var parkingLots = ParkingLotTestDataBuilder
+                .Create()
+                .SetCountOfParkingLots(2)
+                .SetCountOfEachParkingSpace(20)
+                .Build();
+            
             _mockParkingLotRepository
                 .Setup(repository => repository.GetAllParkingLots())
-                .Returns(ParkingLotTestDataBuilder
-                    .Create()
-                    .SetCountOfParkingLots(2)
-                    .SetCountOfEachParkingSpace(20)
-                    .SetUnavailableSpaceCode("A 0")
-                    .Build());
+                .Returns(parkingLots);
+            _mockParkingLotRepository
+                .Setup(x => x.GetParkingLotByAddress(It.IsAny<string>()))
+                .Returns(parkingLots[0]);
             
-            var parkingLots = _mockParkingLotRepository.Object.GetAllParkingLots();
+            _mockParkingLotSearcher
+                .Setup(x => x.Search(It.IsAny<List<ParkLot.Domain.Entities.ParkingLot>>()))
+                .Returns(new ParkLot.Domain.Entities.ParkingLot("A road", 20));
             
-            var parkingBoy = ParkingBoyFactory.CreateParkingBoy(parkingLots);
+            var parkingBoy = new ParkingBoy(_mockParkingLotRepository.Object);
 
-            var ticket = parkingBoy.Parking(new Car("QM.AE86"));
+            var address = parkingBoy.SearchParkingLot(_mockParkingLotSearcher.Object);
+            var ticket = parkingBoy.Parking(new Car("QM.AE86"), address);
 
             var car = parkingLots
                 .Find(parkingLot => parkingLot.Address.Equals(ticket.ParkLotAddress))
@@ -125,15 +121,12 @@ namespace ParkingLot.Tests
                     .Create()
                     .SetCountOfParkingLots(2)
                     .SetCountOfEachParkingSpace(20)
-                    .SetUnavailableSpaceCode("A 0")
                     .Build());
             
             var parkingLots = _mockParkingLotRepository.Object.GetAllParkingLots();
-            var parkingBoy = ParkingBoyFactory.CreateParkingBoy(parkingLots);
-            parkingBoy.Parking(new Car("QM.AE86"));
-            
-            var ticket = TicketFactory.CreateTicket(parkingLots[0], new Car("QM.AE86"), -15);
 
+            var ticket = new Ticket(parkingLots[0].Address, new Car("QM.AE86").PlateNumber);
+                
             Assert.Throws<Exception>(() => parkingLots[0].TakeCar(ticket));
         }
     }

@@ -8,6 +8,8 @@ namespace ParkLot.Infrastructure.Repositories
     {
         List<ParkingLot> GetAllParkingLots();
 
+        ParkingLot GetParkingLotByAddress(string address);
+
         void UpdateParkingLotSpaceInfo(Ticket ticket);
     }
 }

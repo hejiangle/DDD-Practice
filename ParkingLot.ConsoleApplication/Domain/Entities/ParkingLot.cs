@@ -5,18 +5,16 @@ namespace ParkLot.Domain.Entities
 {
     public partial class ParkingLot
     {
-        private const int DEFAULT_PARKING_DURATION_IN_MINUTE = 60;
-        
-        public ParkingLot(List<Space> carSpaces, string address)
+        public ParkingLot(string address, short capacity)
         {
-            CarSpaces = carSpaces;
+            ParkingCars = new List<Car>(capacity);
             Address = address;
         }
 
         public string Address { get; }
 
-        public List<Space> CarSpaces { get; }
+        public List<Car> ParkingCars { get; }
 
-        public bool IsAvailable => CarSpaces.Any(space => space.IsAvailable);
+        public bool IsAvailable => ParkingCars.Count < ParkingCars.Capacity;
     }
 }
