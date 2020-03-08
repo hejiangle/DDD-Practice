@@ -1,6 +1,6 @@
 @startuml
 
-class ParkingLot <<Entity>> {
+class ParkingLot {
     string address
     bool isAvailable
 
@@ -9,36 +9,66 @@ class ParkingLot <<Entity>> {
     
 }
 
-class Car <<ValueObject>> {
+class Car {
     string plateNumber
 }
 
-class Ticket <<ValueObject>> {
+class Ticket {
     string plateNumber
     string parkingLotAddress
     
     bool IsValidTicket(ParkingLot parkingLot)
 }
 
-class ParkingBoy <<Application Service>> {
-    string Search(ParkingLotSearcher searcher)
+class ParkingBoyManager {
+    ParkingBoy Assign(ParkingBoyType type)
+}
+
+class ParkingBoy {
+    string Search()
     Ticket Parking(Car car, ParkingLot availableParkingLot)
 }
 
-interface IParkingLotRepository <<Repository>> {
+class ParkingLotSearcherFactory {
+    IParkingLotSearcher Create(ParkingBoyType type)
+}
+
+interface IParkingLotRepository {
    {abstract} List<ParkingLot> GetParkingLots()
    {abstract} ParkingLot GetParkingLotByAddress(string address)
    {abstract} void UpdateParkingLot(ParkingLot parkingLot)
    ... 
 }
 
-class ParkingLotSearcher <<Domain Service>> {
+interface IParkingLotSearcher{
+    {abstract} ParkingLot Search(List<ParkingLot> parkingLots)
+}
+
+class JuniorParkingLotSearcher {
     ParkingLot Search(List<ParkingLot> parkingLots)
 }
 
+class SeniorParkingLotSearcher {
+    ParkingLot Search(List<ParkingLot> parkingLots)
+}
 
-ParkingBoy ..> IParkingLotRepository
-ParkingBoy ..> ParkingLotSearcher
+enum ParkingBoyType {
+    Junior,
+    Senior
+}
+
+ParkingBoyManager -- ParkingBoy : create >
+ParkingBoyManager ..> IParkingLotRepository
+ParkingBoyManager ..> ParkingBoyType
+
+
+ParkingBoy ..> ParkingLotSearcherFactory
+
+ParkingLotSearcherFactory ..> IParkingLotSearcher
+ParkingLotSearcherFactory ..> ParkingBoyType
+IParkingLotSearcher <|.. JuniorParkingLotSearcher
+IParkingLotSearcher <|.. SeniorParkingLotSearcher
+
 
 IParkingLotRepository "1" -- "*" ParkingLot : retrieve >
 

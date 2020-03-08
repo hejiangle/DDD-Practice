@@ -10,19 +10,19 @@ using Xunit;
 
 namespace ParkingLot.Tests
 {
-    public class ParkingTests
+    public class JuniorParkingBoyTests
     {
         private readonly Mock<IParkingLotRepository> _mockParkingLotRepository;
-        private readonly Mock<ParkingLotSearcher> _mockParkingLotSearcher;
-        
-        public ParkingTests()
+        private readonly ParkingBoyManager _parkingBoyManager;
+
+        public JuniorParkingBoyTests()
         {
             _mockParkingLotRepository = new Mock<IParkingLotRepository>();
-            _mockParkingLotSearcher = new Mock<ParkingLotSearcher>();
+            _parkingBoyManager = new ParkingBoyManager(_mockParkingLotRepository.Object);
         }
 
         [Fact]
-        public void ShouldParkingInTheFirstCarSapceInTheFirstParkingLot()
+        public void ShouldParkingInTheFirstParkingLot()
         {
             var parkingLots = ParkingLotTestDataBuilder
                 .Create()
@@ -37,13 +37,9 @@ namespace ParkingLot.Tests
                 .Setup(x => x.GetParkingLotByAddress(It.IsAny<string>()))
                 .Returns(parkingLots[0]);
             
-            _mockParkingLotSearcher
-                .Setup(x => x.Search(It.IsAny<List<ParkLot.Domain.Entities.ParkingLot>>()))
-                .Returns(new ParkLot.Domain.Entities.ParkingLot("A road", 20));
-            
-            var parkingBoy = new ParkingBoy(_mockParkingLotRepository.Object);
+            var parkingBoy = _parkingBoyManager.Assign(ParkingBoyType.Junior);
 
-            var address = parkingBoy.SearchParkingLot(_mockParkingLotSearcher.Object);
+            var address = parkingBoy.SearchParkingLot();
             var ticket = parkingBoy.Parking(new Car("QM.AE86"), address);
             
             Assert.Equal("QM.AE86", ticket.PlateNumber);
@@ -51,13 +47,13 @@ namespace ParkingLot.Tests
         }
 
         [Fact]
-        public void ShouldParkingInTheFirstSpaceInTheAvailableParkingLotWhenTheFirstParkingLotIsUnavailable()
+        public void ShouldParkingInTheAvailableParkingLotWhenTheFirstParkingLotIsUnavailable()
         {
             var parkingLots = ParkingLotTestDataBuilder
                 .Create()
                 .SetCountOfParkingLots(2)
                 .SetCountOfEachParkingSpace(20)
-                .SetUnavailableParkingAddress("B street")
+                .SetUnavailableParkingAddress("A road")
                 .Build();
             
             _mockParkingLotRepository
@@ -67,13 +63,10 @@ namespace ParkingLot.Tests
                 .Setup(x => x.GetParkingLotByAddress(It.IsAny<string>()))
                 .Returns(parkingLots[1]);
             
-            _mockParkingLotSearcher
-                .Setup(x => x.Search(It.IsAny<List<ParkLot.Domain.Entities.ParkingLot>>()))
-                .Returns(new ParkLot.Domain.Entities.ParkingLot("A road", 20));
-            
-            var parkingBoy = new ParkingBoy(_mockParkingLotRepository.Object);
+            var parkingBoy = _parkingBoyManager.Assign(ParkingBoyType.Junior);
 
-            var address = parkingBoy.SearchParkingLot(_mockParkingLotSearcher.Object);
+
+            var address = parkingBoy.SearchParkingLot();
             var ticket = parkingBoy.Parking(new Car("QM.AE86"), address);
             
             Assert.Equal("QM.AE86", ticket.PlateNumber);
@@ -96,13 +89,9 @@ namespace ParkingLot.Tests
                 .Setup(x => x.GetParkingLotByAddress(It.IsAny<string>()))
                 .Returns(parkingLots[0]);
             
-            _mockParkingLotSearcher
-                .Setup(x => x.Search(It.IsAny<List<ParkLot.Domain.Entities.ParkingLot>>()))
-                .Returns(new ParkLot.Domain.Entities.ParkingLot("A road", 20));
+            var parkingBoy = _parkingBoyManager.Assign(ParkingBoyType.Junior);
             
-            var parkingBoy = new ParkingBoy(_mockParkingLotRepository.Object);
-
-            var address = parkingBoy.SearchParkingLot(_mockParkingLotSearcher.Object);
+            var address = parkingBoy.SearchParkingLot();
             var ticket = parkingBoy.Parking(new Car("QM.AE86"), address);
 
             var car = parkingLots

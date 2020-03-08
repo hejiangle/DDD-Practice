@@ -3,8 +3,8 @@ using ParkLot.Domain.Entities;
 
 namespace ParkLot.Domain.ValueObjects
 {
-    public abstract class ParkingLotSearcher
+    public interface IParkingLotSearcher
     {
-        public abstract ParkingLot Search(List<ParkingLot> parkingLots);
+        ParkingLot Search(List<ParkingLot> parkingLots);
     }
 }

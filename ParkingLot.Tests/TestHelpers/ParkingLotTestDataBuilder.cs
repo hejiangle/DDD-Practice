@@ -49,13 +49,21 @@ namespace ParkingLot.Tests.TestHelpers
 
                 if (PARKING_LOT_ADDRESSES[i].Equals(_unavailableParkingAddress))
                 {
+                    var unavailableParkingLot =
+                        new ParkLot.Domain.Entities.ParkingLot(_unavailableParkingAddress, _spaceCountOfEachParkingLot);
                     for (var j = 0; j < _spaceCountOfEachParkingLot; j++)
                     {
                         spaces.Add(new Car(TEST_CAR_PLATE_NUMBER));
                     }
+                    
+                    unavailableParkingLot.ParkingCars.AddRange(spaces);
+                    result.Add(unavailableParkingLot);
                 }
+                else
+                {
+                    result.Add(new ParkLot.Domain.Entities.ParkingLot(PARKING_LOT_ADDRESSES[i], _spaceCountOfEachParkingLot));
 
-                result.Add(new ParkLot.Domain.Entities.ParkingLot(PARKING_LOT_ADDRESSES[i], _spaceCountOfEachParkingLot));
+                }
             }
 
             return result;
