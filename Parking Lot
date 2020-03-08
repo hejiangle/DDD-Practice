@@ -26,7 +26,7 @@ class ParkingBoyManager {
 
 class ParkingBoy {
     string Search()
-    Ticket Parking(Car car, ParkingLot availableParkingLot)
+    Ticket Parking(Car car, string parkingLotAddress)
 }
 
 class ParkingLotSearcherFactory {

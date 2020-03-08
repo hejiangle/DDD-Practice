@@ -12,7 +12,7 @@ namespace ParkLot.Domain.ValueObjects
         public ParkingBoy(List<ParkingLot> parkingLots, ParkingBoyType type)
         {
             _parkingLots = parkingLots;
-            _parkingLotSearcher = new ParkingLotSearcherFactory().Create(type);
+            _parkingLotSearcher = ParkingLotSearcherFactory.Create(type);
         }
 
         public Ticket Parking(Car car, string parkingLotAddress)

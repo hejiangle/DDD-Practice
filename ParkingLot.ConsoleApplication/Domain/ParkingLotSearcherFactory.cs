@@ -6,25 +6,16 @@ using ParkLot.Domain.ValueObjects;
 
 namespace ParkLot.Domain
 {
-    public class ParkingLotSearcherFactory
+    public static class ParkingLotSearcherFactory
     {
-        private readonly IParkingLotSearcher _juniorParkingLotSearcher;
-        private readonly IParkingLotSearcher _seniorParkingLotSearcher;
-        
-        public ParkingLotSearcherFactory()
-        {
-            _juniorParkingLotSearcher = new JuniorParkingLotSearcher();
-            _seniorParkingLotSearcher = new SeniorParkingLotSearcher();
-        }
-
-        public IParkingLotSearcher Create(ParkingBoyType type)
+        public static IParkingLotSearcher Create(ParkingBoyType type)
         {
             switch (type)
             {
                 case ParkingBoyType.Junior:
-                    return _juniorParkingLotSearcher;
+                    return new JuniorParkingLotSearcher();
                 case ParkingBoyType.Senior:
-                    return _seniorParkingLotSearcher;
+                    return new SeniorParkingLotSearcher();
                 default:
                     throw new ArgumentOutOfRangeException(
                         nameof(type), type, "No such parking boy type.");
