@@ -59,13 +59,13 @@ enum ParkingBoyType {
 
 ParkingBoyManager -- ParkingBoy : create >
 ParkingBoyManager ..> IParkingLotRepository
-ParkingBoyManager ..> ParkingBoyType
+ParkingBoyManager ...> ParkingBoyType
 
 
 ParkingBoy ..> ParkingLotSearcherFactory
 
 ParkingLotSearcherFactory ..> IParkingLotSearcher
-ParkingLotSearcherFactory ..> ParkingBoyType
+ParkingLotSearcherFactory .> ParkingBoyType
 IParkingLotSearcher <|.. JuniorParkingLotSearcher
 IParkingLotSearcher <|.. SeniorParkingLotSearcher
 
