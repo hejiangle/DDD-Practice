@@ -6,4 +6,8 @@
     <RootNamespace>ParkLot</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure" />
+  </ItemGroup>
+
 </Project>
